@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAM Online Youth Training | Registration</title>
+  <meta name="description" content="Registration form for MAM Online Youth Training." />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body data-page="register">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="MAM Home">
+        <img src="assets/images/main-logo.png" alt="MAM Online Youth Training logo" />
+        <div>
+          <span class="brand-title">MAM Online Youth Training</span>
+          <span class="brand-subtitle arabic rtl-inline">الحركة الرسولية المريمية - التنشئة المزدوجة للمسؤولين</span>
+        </div>
+      </a>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav id="site-nav" class="site-nav" data-menu>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="mission.html">Mission / Vision</a>
+        <a href="catalogue.html">Catalogue</a>
+        <a href="resources.html">Resources</a>
+        <a href="team.html">Team</a>
+        <a href="register.html">Registration</a>
+        <a href="contact.html">Contact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="login.html">Login</a>
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <article class="page-hero-card">
+          <h1>Registration</h1>
+          <p>Registration is open. Complete the form below to join the hybrid formation cycle.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container split-panel">
+        <article class="card">
+          <p class="section-kicker">Form</p>
+          <h2 class="section-title">Join MAM Online Youth Training</h2>
+          <form id="register-form" novalidate>
+            <div class="form-grid">
+              <div class="field">
+                <label for="full-name">Full Name *</label>
+                <input id="full-name" name="full_name" type="text" required />
+              </div>
+
+              <div class="field">
+                <label for="parish-team">Parish and Team Name *</label>
+                <input id="parish-team" name="parish_team" type="text" required />
+              </div>
+
+              <div class="field">
+                <label for="role-type">Role *</label>
+                <select id="role-type" name="role_type" required>
+                  <option value="">Select one</option>
+                  <option value="responsible">I am responsible for a youth age group</option>
+                  <option value="trainee">I am a trainee</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="age-group">Age Group Responsibility (or select Trainee)</label>
+                <select id="age-group" name="age_group">
+                  <option value="trainee">Trainee</option>
+                  <option value="12-14">Ages 12-14</option>
+                  <option value="15-17">Ages 15-17</option>
+                  <option value="18-21">Ages 18-21</option>
+                  <option value="22+">Ages 22+</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="phone">Phone *</label>
+                <input id="phone" name="phone" type="tel" required />
+              </div>
+
+              <div class="field">
+                <label for="email">Email *</label>
+                <input id="email" name="email" type="email" required />
+              </div>
+
+              <div class="field">
+                <label for="age">Age *</label>
+                <input id="age" name="age" type="number" min="12" max="70" required />
+              </div>
+
+              <div class="field full">
+                <label for="notes">Optional Note</label>
+                <textarea id="notes" name="notes" placeholder="Share any context that helps us guide your learning path."></textarea>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" type="submit">Submit Registration</button>
+            <p id="register-status" class="status-message" aria-live="polite"></p>
+            <p class="form-note">REPLACE WITH REAL FORM ENDPOINT: connect this form to Google Forms or your backend API.</p>
+            <p class="form-note">FUTURE AUTH INTEGRATION: approved registrations can later trigger learner account creation.</p>
+          </form>
+        </article>
+
+        <article class="card">
+          <h2 class="section-title">Before You Submit</h2>
+          <ul>
+            <li>- Verify contact information for follow-up.</li>
+            <li>- Select your role accurately (responsible or trainee).</li>
+            <li>- Include your parish/team context for better module placement.</li>
+          </ul>
+          <p class="placeholder-note">Current behavior is front-end demo only and does not store data permanently.</p>
+          <a class="btn btn-outline" href="faq.html">Read Registration FAQ</a>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h3>MAM Online Youth Training</h3>
+          <p>Hybrid formation platform for youth responsibles in the Marial Apostolic Movement.</p>
+          <p class="arabic rtl-block">الحركة الرسولية المريمية - التنشئة المزدوجة للمسؤولين</p>
+        </div>
+        <div>
+          <h3>Platform Links</h3>
+          <ul>
+            <li><a href="catalogue.html">Training Catalogue</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="dashboard.html">Learner Dashboard</a></li>
+            <li><a href="login.html">Member Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Support</h3>
+          <ul>
+            <li><a href="contact.html">Contact Team</a></li>
+            <li><a href="faq.html">Frequently Asked Questions</a></li>
+            <li><a href="register.html">Registration</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">&copy; <span id="current-year"></span> MAM Online Youth Training. Built for hybrid youth formation growth.</div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
