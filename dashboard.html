@@ -39,7 +39,7 @@
       <div class="container">
         <article class="card welcome-card">
           <p class="section-kicker">Learner Space</p>
-          <h1 class="section-title">Welcome back, Learner</h1>
+          <h1 class="section-title">Welcome back, <span data-welcome-name>Learner</span></h1>
           <p>Track your module journey, continue current trainings, and access key resources from one dashboard.</p>
           <div class="completion-area">
             <span class="progress-pill" data-demo-guard>Member session</span>
@@ -58,7 +58,7 @@
         <div class="grid">
           <article class="card">
             <h2 class="section-title">Completed Modules / Trainings</h2>
-            <!-- FUTURE PROGRESS TRACKING: replace localStorage with backend learner completion endpoint -->
+            <!-- Completion list now reads from learner_course_completions per logged-in learner -->
             <ul class="quick-list" data-completed-list>
               <li>Loading completion data...</li>
             </ul>
@@ -66,12 +66,9 @@
 
           <article class="card">
             <h2 class="section-title">In Progress Trainings</h2>
-            <ul class="quick-list">
-              <li>Personalist Pedagogy Foundations - 60% progress</li>
-              <li>Planning a Youth Formation Cycle - 25% progress</li>
-              <li>Witness as Daily Lifestyle - not started quiz</li>
+            <ul class="quick-list" data-in-progress-list>
+              <li>Loading in-progress data...</li>
             </ul>
-            <p class="placeholder-note">FUTURE PROGRESS TRACKING: in-progress items should come from user activity service.</p>
           </article>
 
           <article class="card">
@@ -84,20 +81,32 @@
 
         <div class="grid">
           <article class="card">
-            <h2 class="section-title">Quick Access to Resources</h2>
+            <h2 class="section-title">Learner Profile</h2>
+            <ul class="quick-list">
+              <li><strong>Name:</strong> <span data-profile-name>Loading...</span></li>
+              <li><strong>Email:</strong> <span data-profile-email>Loading...</span></li>
+              <li><strong>Parish:</strong> <span data-profile-parish>Loading...</span></li>
+              <li><strong>Role:</strong> <span data-profile-role>Loading...</span></li>
+              <li><strong>Age Group:</strong> <span data-profile-age-group>Loading...</span></li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h2 class="section-title">Achievement Badges</h2>
+            <p>Total badges earned: <strong data-badge-count>0</strong></p>
+            <div class="badge-wall" data-badge-list>
+              <p class="placeholder-note">Loading badges...</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h2 class="section-title">Quick Access</h2>
             <ul class="quick-list">
               <li><a href="resources.html">Open full resource library</a></li>
               <li><a href="catalogue.html">Return to module catalogue</a></li>
               <li><a href="training-template.html">Use training template preview</a></li>
               <li><a href="faq.html">Read learner FAQ</a></li>
             </ul>
-          </article>
-
-          <article class="card">
-            <h2 class="section-title">Future Certificate / Download Area</h2>
-            <p>Reserved for final certificates, completion letters, and official participation documents.</p>
-            <a class="btn btn-outline" href="#" aria-disabled="true">Certificate Download Placeholder</a>
-            <p class="placeholder-note">FUTURE AUTH INTEGRATION: only authorized users should access issued certificates.</p>
           </article>
         </div>
       </div>
@@ -140,5 +149,7 @@
   <script src="assets/js/main.js"></script>
 </body>
 </html>
+
+
 
 

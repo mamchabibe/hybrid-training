@@ -866,6 +866,20 @@ textarea:focus-visible {
   border-bottom: 0;
 }
 
+.badge-wall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.badge-wall .badge {
+  max-width: 100%;
+}
+
+.quick-list strong {
+  color: var(--primary-strong);
+}
+
 .faq-list details {
   background: #fff;
   border-radius: var(--radius-sm);
@@ -1022,5 +1036,7 @@ textarea:focus-visible {
     display: none;
   }
 }
+
+
 
 

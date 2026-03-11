@@ -1,6 +1,7 @@
 ﻿(() => {
   const doc = document;
   const usesManagedAuth = Boolean(window.MAM_AUTH_ENABLED);
+  const completionTarget = 20;
 
   const moduleTitles = {
     "1": "المحور الأول: المدخل الشخصاني في التربية",
@@ -8,6 +9,49 @@
     "3": "المحور الثالث: القيادة في العمل الرعوي مع الشباب",
     "4": "المحور الرابع: ديناميكية الجماعة وبناء الوحدة",
     "5": "المحور الخامس: الشهادة للمسيح في خدمة الشبيبة"
+  };
+
+  let managedClient;
+
+  const getManagedClient = () => {
+    if (!usesManagedAuth || !window.supabase || !window.MAM_AUTH_CONFIG) {
+      return null;
+    }
+    if (!managedClient) {
+      managedClient = window.supabase.createClient(
+        window.MAM_AUTH_CONFIG.supabaseUrl,
+        window.MAM_AUTH_CONFIG.supabaseAnonKey
+      );
+    }
+    return managedClient;
+  };
+
+  const getManagedUser = async () => {
+    const client = getManagedClient();
+    if (!client) {
+      return null;
+    }
+
+    const {
+      data: { session }
+    } = await client.auth.getSession();
+
+    return session?.user || null;
+  };
+
+  const formatDate = (isoDate) => {
+    if (!isoDate) {
+      return "";
+    }
+    const date = new Date(isoDate);
+    if (Number.isNaN(date.getTime())) {
+      return "";
+    }
+    return date.toLocaleDateString("en-GB", {
+      year: "numeric",
+      month: "short",
+      day: "numeric"
+    });
   };
 
   const setActiveNavLink = () => {
@@ -121,6 +165,23 @@
     localStorage.setItem("mam_completed_trainings", JSON.stringify(items));
   };
 
+  const getTrainingContext = () => {
+    const trainingIdInput = doc.getElementById("training-id");
+    const trainingTitleNode = doc.getElementById("training-title");
+    const moduleParam = new URLSearchParams(window.location.search).get("module") || "1";
+
+    const trainingTitle = trainingTitleNode ? trainingTitleNode.textContent.trim() : "Unnamed Training";
+    const trainingId = trainingIdInput ? trainingIdInput.value : trainingTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+    return {
+      trainingId,
+      trainingTitle,
+      moduleId: moduleParam,
+      moduleTitle: moduleTitles[moduleParam] || moduleTitles["1"],
+      badgeCode: `badge-${trainingId}`
+    };
+  };
+
   const initTrainingTemplateData = () => {
     if (doc.body.dataset.page !== "training-template") {
       return;
@@ -141,11 +202,61 @@
       moduleNode.textContent = moduleTitles[module] || moduleTitles["1"];
     }
 
-    // FUTURE PROGRESS TRACKING: replace this with a real backend training id.
     const hiddenTrainingId = doc.getElementById("training-id");
     if (hiddenTrainingId) {
       hiddenTrainingId.value = `${module}-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
     }
+  };
+
+  const setCompletionUi = (button, statusText) => {
+    const status = doc.querySelector(".completion-status");
+    if (status) {
+      status.textContent = statusText;
+    }
+    button.disabled = true;
+    button.textContent = "Completed";
+  };
+
+  const setProgressVisual = (completedCount) => {
+    const progressValue = doc.querySelector("[data-progress-value]");
+    const progressFill = doc.querySelector("[data-progress-fill]");
+    const percentage = Math.min(Math.round((completedCount / completionTarget) * 100), 100);
+
+    if (progressValue) {
+      progressValue.textContent = `${percentage}%`;
+    }
+    if (progressFill) {
+      progressFill.style.width = `${percentage}%`;
+    }
+  };
+
+  const renderBadgeWall = (completions) => {
+    const badgeCount = doc.querySelector("[data-badge-count]");
+    const badgeList = doc.querySelector("[data-badge-list]");
+
+    if (badgeCount) {
+      badgeCount.textContent = String(completions.length);
+    }
+
+    if (!badgeList) {
+      return;
+    }
+
+    badgeList.innerHTML = "";
+    if (!completions.length) {
+      const p = doc.createElement("p");
+      p.className = "placeholder-note";
+      p.textContent = "No badges yet. Complete your first training to earn one.";
+      badgeList.appendChild(p);
+      return;
+    }
+
+    completions.slice(0, 12).forEach((item) => {
+      const badge = doc.createElement("span");
+      badge.className = "badge badge--gold";
+      badge.textContent = item.module_title ? `Badge - ${item.module_title}` : "Course Badge";
+      badgeList.appendChild(badge);
+    });
   };
 
   const initCompletionFlow = () => {
@@ -154,77 +265,231 @@
       return;
     }
 
-    buttons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const trainingIdInput = doc.getElementById("training-id");
-        const trainingTitleNode = doc.getElementById("training-title");
-        const trainingTitle = trainingTitleNode ? trainingTitleNode.textContent.trim() : "Unnamed Training";
-        const trainingId = trainingIdInput ? trainingIdInput.value : trainingTitle.toLowerCase();
+    const button = buttons[0];
 
-        const completed = getCompletedTrainings();
-        const existing = completed.find((item) => item.id === trainingId);
+    const markCompletedLocally = () => {
+      const context = getTrainingContext();
+      const completed = getCompletedTrainings();
+      const existing = completed.find((item) => item.id === context.trainingId);
 
-        if (!existing) {
-          completed.push({
-            id: trainingId,
-            title: trainingTitle,
-            completedAt: new Date().toISOString()
-          });
-          saveCompletedTrainings(completed);
-        }
+      if (!existing) {
+        completed.push({
+          id: context.trainingId,
+          title: context.trainingTitle,
+          completedAt: new Date().toISOString()
+        });
+        saveCompletedTrainings(completed);
+      }
 
-        const status = doc.querySelector(".completion-status");
+      setCompletionUi(button, "Marked as completed in demo mode.");
+    };
+
+    const initManagedCompletionState = async () => {
+      const client = getManagedClient();
+      const user = await getManagedUser();
+      if (!client || !user) {
+        return;
+      }
+
+      const context = getTrainingContext();
+      const { data, error } = await client
+        .from("learner_course_completions")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("training_id", context.trainingId)
+        .maybeSingle();
+
+      if (!error && data) {
+        setCompletionUi(button, "Already completed. Badge already earned for this training.");
+      }
+    };
+
+    if (usesManagedAuth) {
+      initManagedCompletionState();
+    }
+
+    button.addEventListener("click", async () => {
+      if (!usesManagedAuth) {
+        markCompletedLocally();
+        return;
+      }
+
+      const client = getManagedClient();
+      const user = await getManagedUser();
+      const context = getTrainingContext();
+      const status = doc.querySelector(".completion-status");
+
+      if (!client || !user) {
         if (status) {
-          status.textContent = "Marked as completed in demo mode.";
+          status.textContent = "Session not found. Please log in again.";
         }
+        return;
+      }
 
-        // FUTURE QUIZ VALIDATION: call backend endpoint to verify quiz score before completion.
-        // FUTURE PROGRESS TRACKING: persist completion to learner record in database.
-        button.disabled = true;
-        button.textContent = "Completed";
-      });
+      if (status) {
+        status.textContent = "Saving completion and badge...";
+      }
+
+      const payload = {
+        user_id: user.id,
+        training_id: context.trainingId,
+        training_title: context.trainingTitle,
+        module_id: context.moduleId,
+        module_title: context.moduleTitle,
+        badge_code: context.badgeCode
+      };
+
+      const { error } = await client
+        .from("learner_course_completions")
+        .upsert(payload, { onConflict: "user_id,training_id" });
+
+      if (error) {
+        if (status) {
+          status.textContent = `Could not save completion: ${error.message}`;
+        }
+        return;
+      }
+
+      setCompletionUi(button, "Completed and badge earned for your dashboard.");
     });
   };
 
-  const initDashboardData = () => {
+  const initDashboardData = async () => {
     if (doc.body.dataset.page !== "dashboard") {
       return;
     }
 
-    const completed = getCompletedTrainings();
     const completedList = doc.querySelector("[data-completed-list]");
-    const progressValue = doc.querySelector("[data-progress-value]");
-    const progressFill = doc.querySelector("[data-progress-fill]");
+    const inProgressList = doc.querySelector("[data-in-progress-list]");
+    const authMessage = doc.querySelector("[data-demo-guard]");
+    const welcomeName = doc.querySelector("[data-welcome-name]");
+
+    if (!usesManagedAuth) {
+      const completed = getCompletedTrainings();
+
+      if (completedList) {
+        completedList.innerHTML = "";
+        if (!completed.length) {
+          const li = doc.createElement("li");
+          li.textContent = "No completed trainings yet. Start from the catalogue.";
+          completedList.appendChild(li);
+        } else {
+          completed.forEach((item) => {
+            const li = doc.createElement("li");
+            li.textContent = item.title;
+            completedList.appendChild(li);
+          });
+        }
+      }
+
+      setProgressVisual(completed.length);
+
+      if (inProgressList) {
+        inProgressList.innerHTML = "";
+        const li = doc.createElement("li");
+        li.textContent = completed.length
+          ? "Continue with the next training in the catalogue to earn more badges."
+          : "No progress started yet. Open any training and mark completion to begin.";
+        inProgressList.appendChild(li);
+      }
+
+      if (authMessage) {
+        const isDemoLoggedIn = localStorage.getItem("mam_demo_auth") === "true";
+        authMessage.textContent = isDemoLoggedIn
+          ? "Demo member session active."
+          : "You are viewing a front-end preview. Real access control will be added later.";
+      }
+
+      renderBadgeWall([]);
+      return;
+    }
+
+    const client = getManagedClient();
+    const user = await getManagedUser();
+
+    if (!client || !user) {
+      return;
+    }
+
+    const { data: profile } = await client
+      .from("learner_profiles")
+      .select("full_name,email,parish_team,role_type,age_group")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profile) {
+      if (welcomeName) {
+        welcomeName.textContent = profile.full_name || "Learner";
+      }
+
+      const map = {
+        "[data-profile-name]": profile.full_name || "-",
+        "[data-profile-email]": profile.email || user.email || "-",
+        "[data-profile-parish]": profile.parish_team || "-",
+        "[data-profile-role]": profile.role_type || "-",
+        "[data-profile-age-group]": profile.age_group || "-"
+      };
+
+      Object.entries(map).forEach(([selector, value]) => {
+        const node = doc.querySelector(selector);
+        if (node) {
+          node.textContent = String(value);
+        }
+      });
+    }
+
+    const { data: completions, error: completionError } = await client
+      .from("learner_course_completions")
+      .select("training_id,training_title,module_title,completed_at,badge_code")
+      .eq("user_id", user.id)
+      .order("completed_at", { ascending: false });
+
+    const completionRows = completionError || !Array.isArray(completions) ? [] : completions;
+
+    if (completionError) {
+      if (completedList) {
+        completedList.innerHTML = "";
+        const li = doc.createElement("li");
+        li.textContent = `Progress table issue: ${completionError.message}`;
+        completedList.appendChild(li);
+      }
+      renderBadgeWall([]);
+      setProgressVisual(0);
+      return;
+    }
 
     if (completedList) {
       completedList.innerHTML = "";
-      if (!completed.length) {
+      if (!completionRows.length) {
         const li = doc.createElement("li");
         li.textContent = "No completed trainings yet. Start from the catalogue.";
         completedList.appendChild(li);
       } else {
-        completed.forEach((item) => {
+        completionRows.forEach((item) => {
           const li = doc.createElement("li");
-          li.textContent = item.title;
+          const dateText = formatDate(item.completed_at);
+          li.textContent = dateText
+            ? `${item.training_title} (${dateText})`
+            : item.training_title;
           completedList.appendChild(li);
         });
       }
     }
 
-    const percentage = Math.min(Math.round((completed.length / 10) * 100), 100);
-    if (progressValue) {
-      progressValue.textContent = `${percentage}%`;
-    }
-    if (progressFill) {
-      progressFill.style.width = `${percentage}%`;
+    if (inProgressList) {
+      inProgressList.innerHTML = "";
+      const li = doc.createElement("li");
+      li.textContent = completionRows.length
+        ? "Continue with the next training in the catalogue to earn more badges."
+        : "No progress started yet. Open any training and mark completion to begin.";
+      inProgressList.appendChild(li);
     }
 
-    const authMessage = doc.querySelector("[data-demo-guard]");
-    if (authMessage && !usesManagedAuth) {
-      const isDemoLoggedIn = localStorage.getItem("mam_demo_auth") === "true";
-      authMessage.textContent = isDemoLoggedIn
-        ? "Demo member session active."
-        : "You are viewing a front-end preview. Real access control will be added later.";
+    setProgressVisual(completionRows.length);
+    renderBadgeWall(completionRows);
+
+    if (authMessage) {
+      authMessage.textContent = `Approved member session: ${profile?.full_name || user.email}`;
     }
   };
 
@@ -238,13 +503,5 @@
   initCompletionFlow();
   initDashboardData();
 })();
-
-
-
-
-
-
-
-
 
 
