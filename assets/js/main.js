@@ -271,20 +271,32 @@
 
     form.addEventListener("submit", (event) => {
       event.preventDefault();
-      const fullName = form.querySelector("#full-name");
-      if (!fullName || !fullName.value.trim()) {
+
+      if (!form.checkValidity()) {
         if (statusNode) {
           statusNode.classList.add("is-error");
           statusNode.textContent = "Please complete all required fields before submitting.";
         }
+        form.reportValidity();
         return;
       }
 
+      const payload = Object.fromEntries(new FormData(form).entries());
+
       // REPLACE WITH REAL FORM ENDPOINT: send this payload to backend or Google Forms.
+      try {
+        const existing = JSON.parse(localStorage.getItem("mam_demo_registrations") || "[]");
+        existing.push({ ...payload, submittedAt: new Date().toISOString() });
+        localStorage.setItem("mam_demo_registrations", JSON.stringify(existing));
+      } catch (error) {
+        // If storage is blocked, continue with UI confirmation.
+      }
+
       if (statusNode) {
         statusNode.classList.remove("is-error");
-        statusNode.textContent = "Registration submitted in demo mode. Team will contact you soon.";
+        statusNode.textContent = `Registration submitted in demo mode for ${payload.parish_team}. Team will contact you soon.`;
       }
+
       form.reset();
     });
   };
@@ -301,3 +313,4 @@
   initLoginForm();
   initRegistrationForm();
 })();
+
