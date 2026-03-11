@@ -161,7 +161,17 @@
 
               <div class="field">
                 <label for="email">Email *</label>
-                <input id="email" name="email" type="email" required />
+                <input id="email" name="email" type="email" required autocomplete="email" />
+              </div>
+
+              <div class="field">
+                <label for="password">Password *</label>
+                <input id="password" name="password" type="password" minlength="8" required autocomplete="new-password" />
+              </div>
+
+              <div class="field">
+                <label for="confirm-password">Confirm Password *</label>
+                <input id="confirm-password" name="confirm_password" type="password" minlength="8" required autocomplete="new-password" />
               </div>
 
               <div class="field">
@@ -177,8 +187,8 @@
 
             <button class="btn btn-primary" type="submit">Submit Registration</button>
             <p id="register-status" class="status-message" aria-live="polite"></p>
-            <p class="form-note">REPLACE WITH REAL FORM ENDPOINT: connect this form to Google Forms or your backend API.</p>
-            <p class="form-note">FUTURE AUTH INTEGRATION: approved registrations can later trigger learner account creation.</p>
+            <p class="form-note">Registration creates an account and stores a pending profile for admin approval.</p>
+            <p class="form-note">Training access opens only after admin sets your profile as approved.</p>
           </form>
         </article>
 
@@ -189,7 +199,7 @@
             <li>- Select your role accurately (Responsible or To Be Responsible).</li>
             <li>- Choose your parish from the official list.</li>
           </ul>
-          <p class="placeholder-note">Current behavior is front-end demo only and does not store data permanently.</p>
+          <p class="placeholder-note">Registrations are stored in backend and require admin approval before access is granted.</p>
           <a class="btn btn-outline" href="faq.html">Read Registration FAQ</a>
         </article>
       </div>
@@ -226,7 +236,13 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/auth-config.js"></script>
+  <script src="assets/js/auth.js"></script>
   <script src="assets/js/main.js"></script>
 </body>
 </html>
+
+
+
 

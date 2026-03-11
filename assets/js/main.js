@@ -1,5 +1,6 @@
 ﻿(() => {
   const doc = document;
+  const usesManagedAuth = Boolean(window.MAM_AUTH_ENABLED);
 
   const moduleTitles = {
     "1": "المحور الأول: المدخل الشخصاني في التربية",
@@ -219,86 +220,12 @@
     }
 
     const authMessage = doc.querySelector("[data-demo-guard]");
-    if (authMessage) {
+    if (authMessage && !usesManagedAuth) {
       const isDemoLoggedIn = localStorage.getItem("mam_demo_auth") === "true";
       authMessage.textContent = isDemoLoggedIn
         ? "Demo member session active."
         : "You are viewing a front-end preview. Real access control will be added later.";
     }
-  };
-
-  const initLoginForm = () => {
-    const form = doc.getElementById("login-form");
-    if (!form) {
-      return;
-    }
-
-    const statusNode = doc.getElementById("login-status");
-
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const emailInput = form.querySelector("#login-email");
-      const passwordInput = form.querySelector("#login-password");
-
-      if (!emailInput.value.trim() || !passwordInput.value.trim()) {
-        if (statusNode) {
-          statusNode.classList.add("is-error");
-          statusNode.textContent = "Enter both email and password to continue.";
-        }
-        return;
-      }
-
-      // FUTURE AUTH INTEGRATION: replace this demo flow with real API authentication.
-      localStorage.setItem("mam_demo_auth", "true");
-      if (statusNode) {
-        statusNode.classList.remove("is-error");
-        statusNode.textContent = "Demo login successful. Redirecting to learner dashboard...";
-      }
-
-      window.setTimeout(() => {
-        window.location.href = "dashboard.html";
-      }, 900);
-    });
-  };
-
-  const initRegistrationForm = () => {
-    const form = doc.getElementById("register-form");
-    if (!form) {
-      return;
-    }
-
-    const statusNode = doc.getElementById("register-status");
-
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      if (!form.checkValidity()) {
-        if (statusNode) {
-          statusNode.classList.add("is-error");
-          statusNode.textContent = "Please complete all required fields before submitting.";
-        }
-        form.reportValidity();
-        return;
-      }
-
-      const payload = Object.fromEntries(new FormData(form).entries());
-
-      // REPLACE WITH REAL FORM ENDPOINT: send this payload to backend or Google Forms.
-      try {
-        const existing = JSON.parse(localStorage.getItem("mam_demo_registrations") || "[]");
-        existing.push({ ...payload, submittedAt: new Date().toISOString() });
-        localStorage.setItem("mam_demo_registrations", JSON.stringify(existing));
-      } catch (error) {
-        // If storage is blocked, continue with UI confirmation.
-      }
-
-      if (statusNode) {
-        statusNode.classList.remove("is-error");
-        statusNode.textContent = `Registration submitted in demo mode for ${payload.parish_team}. Team will contact you soon.`;
-      }
-
-      form.reset();
-    });
   };
 
   setActiveNavLink();
@@ -310,7 +237,14 @@
   initTrainingTemplateData();
   initCompletionFlow();
   initDashboardData();
-  initLoginForm();
-  initRegistrationForm();
 })();
+
+
+
+
+
+
+
+
+
 

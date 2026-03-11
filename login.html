@@ -40,13 +40,13 @@
         <article class="login-info">
           <h2>Members Area Access</h2>
           <p>This interface is intentionally designed as a restricted platform experience for learners and responsibles.</p>
-          <p class="auth-warning">FUTURE AUTH INTEGRATION: real login, roles, and protected routes will be connected in a backend phase. This page currently demonstrates front-end flow only.</p>
+          <p class="auth-warning">Access policy: only users with approved registration can open training pages and dashboard.</p>
           <div class="badge-group">
             <span class="badge">Learner Accounts</span>
             <span class="badge">Role Permissions</span>
             <span class="badge badge--gold">Progress Sync</span>
           </div>
-          <p>After login, users should reach a learner dashboard with module progress and resources.</p>
+          <p>Use the same email/password created in registration. If your account is pending, login will be blocked until approval.</p>
         </article>
 
         <article class="card">
@@ -67,8 +67,10 @@
             <p id="login-status" class="status-message" aria-live="polite"></p>
           </form>
 
-          <p class="form-note">No real credentials are validated at this stage. Use any values to preview the member journey.</p>
-          <p class="form-note">FUTURE AUTH INTEGRATION: connect to identity provider or custom backend endpoint.</p>
+          <a class="btn btn-outline" href="register.html">Create Account / Register</a>
+
+          <p class="form-note">This login now validates real credentials through Supabase authentication.</p>
+          <p class="form-note">If you do not have an account yet, complete registration first.</p>
         </article>
       </div>
     </section>
@@ -104,6 +106,12 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/auth-config.js"></script>
+  <script src="assets/js/auth.js"></script>
   <script src="assets/js/main.js"></script>
 </body>
 </html>
+
+
+
