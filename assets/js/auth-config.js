@@ -1,8 +1,8 @@
-﻿// MAM Access Control Configuration
+// MAM Access Control Configuration
 // Replace with your Supabase project values.
 window.MAM_AUTH_CONFIG = Object.freeze({
-  supabaseUrl: "REPLACE_WITH_SUPABASE_URL",
-  supabaseAnonKey: "REPLACE_WITH_SUPABASE_ANON_KEY",
+  supabaseUrl: "https://kswefxwizaujbtmgdemo.supabase.co",
+  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzd2VmeHdpemF1amJ0bWdkZW1vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyMDQ4MjAsImV4cCI6MjA4ODc4MDgyMH0.APN3KLIUNHiQma6WRIZ1vNsg7s4pgaic1yYpl0pO7X4",
   protectedPages: [
     "catalogue.html",
     "module-1.html",
