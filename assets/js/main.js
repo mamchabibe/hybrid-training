@@ -493,6 +493,60 @@
     }
   };
 
+  const initContactForm = () => {
+    if (doc.body.dataset.page !== "contact") {
+      return;
+    }
+
+    const form = doc.getElementById("contact-form");
+    const statusNode = doc.getElementById("contact-status");
+
+    if (!form || !statusNode) {
+      return;
+    }
+
+    const setStatus = (message, isError = false) => {
+      statusNode.classList.toggle("is-error", isError);
+      statusNode.textContent = message;
+    };
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      if (!form.checkValidity()) {
+        setStatus("Please complete all required fields before sending.", true);
+        form.reportValidity();
+        return;
+      }
+
+      const client = getManagedClient();
+      if (!client) {
+        setStatus("Contact backend is not configured yet. Please use WhatsApp or email above.", true);
+        return;
+      }
+
+      const payload = Object.fromEntries(new FormData(form).entries());
+      const user = await getManagedUser();
+
+      setStatus("Sending your message...");
+
+      const { error } = await client.from("contact_messages").insert({
+        user_id: user?.id || null,
+        full_name: String(payload.full_name || "").trim(),
+        email: String(payload.email || "").trim().toLowerCase(),
+        topic: String(payload.topic || "").trim(),
+        message: String(payload.message || "").trim()
+      });
+
+      if (error) {
+        setStatus(`Could not send your message: ${error.message}`, true);
+        return;
+      }
+
+      setStatus("Message sent successfully. The formation team will get back to you soon.");
+      form.reset();
+    });
+  };
   setActiveNavLink();
   initMobileMenu();
   initSmoothScroll();
@@ -502,6 +556,9 @@
   initTrainingTemplateData();
   initCompletionFlow();
   initDashboardData();
+  initContactForm();
 })();
+
+
 
 
